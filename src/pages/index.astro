@@ -1,0 +1,49 @@
+---
+import BaseLayout from '$layouts/BaseLayout.astro';
+import BlogRoll from '$components/BlogRoll.svelte';
+import Card from '$components/Card.svelte';
+
+/** @type {Promise<{frontmatter: {datePublished: string; postTitle: string; seoMetaDescription: string; }file: string;}[]>} */
+const rawPosts = await Astro.glob('../content/posts/**/index.md');
+const sortedRawPosts = rawPosts.sort(
+  (
+    { frontmatter: { datePublished: datePublishedA } },
+    { frontmatter: { datePublished: datePublishedB } },
+  ) => new Date(datePublishedB).valueOf() - new Date(datePublishedA).valueOf(),
+);
+
+const posts = sortedRawPosts.map(
+  ({ frontmatter: { datePublished, postTitle, seoMetaDescription }, file }) => {
+    const slug = file.split('/').at(-2);
+    return { datePublished, postTitle, seoMetaDescription, slug };
+  },
+);
+
+const seoProps = {
+  metadescription:
+    'Astro Blog Markdown Starter - starter code by Rodney Lab to help you get going on your next blog site',
+  slug: '',
+  title: 'Home',
+};
+---
+
+<BaseLayout {...seoProps}>
+  <header>
+    <h1>Geaux-TigersJS &mdash; LSU Blog Starter</h1>
+    <h2>It's Saturday Night in Baton Rouge!</h2>
+  </header><Card>
+    <h2 class="heading">LSU Tigers</h2>
+    <p>
+      It's the humidity. It's the booze. It's the day long tailgates. It's LSU. 
+      It's Callin' Baton Rogue. It's Tiger Stadium. It's Saturday Night. 
+      It's Death Valley. 
+    </p>
+  </Card>
+  <BlogRoll client:visible initialPosts={4} {posts} />
+</BaseLayout>
+
+<style>
+  .heading {
+    margin-top: var(--spacing-0);
+  }
+</style>
